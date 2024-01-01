@@ -1,79 +1,12 @@
 module Day1
 
     use tools
+    use hashtbl
 
     private :: Part1, Part2
     public :: Day1Solve
 
-type Frequency
-    integer :: key
-    integer :: value
-    type(Frequency), pointer :: next => null()
-end type Frequency
-
-type FrequencyPtr
-    type(Frequency), pointer :: ptr
-end type FrequencyPtr
-
-type HashTable
-    type(FrequencyPtr), dimension(0:4096) :: buckets
-end type HashTable
-
 contains
-
-subroutine set(hash, key, value)
-    type(HashTable) :: hash
-    integer :: key
-    integer :: value
-    integer :: code
-    type(FrequencyPtr) :: ptr
-    type(Frequency), pointer :: current
-
-    code = modulo(key, 4096)
-    ptr = hash%buckets(code)
-    current = ptr%ptr
-
-    do while ((associated(current)) .and. (current%key .ne. key))
-        current = current%next
-    end do
-
-    if (associated(current)) then
-        current%value = value
-    else 
-        allocate(current)
-        current%key = key
-        current%value= value
-    end if
-end subroutine set
-
-logical function get(hash, key, value)    
-    type(HashTable), intent(in) :: hash
-    integer, intent(in) :: key
-    integer, intent(out) :: value
-    integer :: code
-    type(Frequency), pointer :: current
-    type(FrequencyPtr) :: ptr
-
-    code = key
-    if (code < 0) then 
-        code = -code
-    end if
-    code = modulo(key, 4096)
-    ptr = hash%buckets(code)
-
-    current = ptr%ptr
-
-    do while ((associated(current)) .and. (current%key .ne. key))
-        current = current%next
-    end do
- 
-    if (associated(current)) then
-        value = current%value
-        get = .true.
-    else 
-        get = .false.
-    end if
-end function get
 
 integer function Part1()
     integer :: frequency
@@ -100,25 +33,29 @@ subroutine Part2(R)
     integer :: file
     integer, intent(out) :: R
     integer :: num
-    type(HashTable) :: visited
+    integer :: steps 
 
-    frequency = 0
+    type(hash_tbl_sll) :: visited
+
+    call visited%init(1031)
+
     R = 0
     found = .false.
 
     file = openFile(1)
 
+    steps = 0
+    frequency = 0
     do while (.not. found)
         rewind(file)
         do while(.not. found .and. readInteger(file, num))
             frequency = frequency + num
-            print *, frequency
-            if (get(visited, frequency, num)) then
-                ! already visited
-                R = frequency
-                found = .true.
+            call visited%has(key=frequency, exists=found)
+            if (.not. found) then
+              call visited%put(key=frequency, val=frequency)
             else
-                call set(visited, frequency, frequency)
+              ! already visited
+              R = frequency
             end if
         end do
     end do

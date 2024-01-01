@@ -1,0 +1,5 @@
+{
+  "fortran.fortls.disabled": true,
+  "fortran.formatting.formatter": "Disabled",
+  "fortran.linter.modOutput": "./modules"
+}

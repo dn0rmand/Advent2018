@@ -9,13 +9,8 @@
       "osx": {
         "command": "gfortran"
       },
-      "args": [
-        "-g",
-        "${workspaceFolder}/*.f95",
-        "-o",
-        "${workspaceRoot}/a.out"
-      ],
+      "args": ["-J", "./modules", "-g", "**/*.f95", "-o", "a.out"],
       "group": "build"
     }
-  ]  
-} 
+  ]
+}

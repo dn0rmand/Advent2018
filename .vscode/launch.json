@@ -15,7 +15,7 @@
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "externalConsole": false,
-      "preLaunchTask": "CompileFortran",
+      "preLaunchTask": "CompileFortran"
       // "setupCommands": [
       //   {
       //       "description": "Enable pretty-printing for gdb",
@@ -23,5 +23,6 @@
       //       "ignoreFailures": true
       //   }
       // ]
-    }]
+    }
+  ]
 }
