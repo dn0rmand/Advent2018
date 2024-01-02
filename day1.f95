@@ -27,11 +27,11 @@ integer function Part1()
 end function Part1
 
 ! integer function Part2()
-subroutine Part2(R)
+integer function Part2()
     logical :: found
     integer :: frequency
     integer :: file
-    integer, intent(out) :: R
+    integer :: R
     integer :: num
     integer :: steps 
 
@@ -62,13 +62,15 @@ subroutine Part2(R)
 
     call closeFile(file)
 
-end subroutine Part2
+    Part2 = R
+  end function Part2
 
 subroutine Day1Solve()
     integer :: R
     print *, '--- Day 1 ---'
-    print *, 'Answer to part 1 is ', Part1()
-    call Part2(R)
+    R =  Part1()
+    print *, 'Answer to part 1 is ', R
+    R = Part2()
     print *, 'Answer to part 2 is ', R
 end subroutine Day1Solve
 

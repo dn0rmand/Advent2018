@@ -132,10 +132,9 @@ MODULE hashtbl
     INTEGER,             INTENT(in)    :: key, val
     INTEGER                            :: hash
 
-    hash = MOD(key,tbl%vec_len)
+    hash = MOD(key + tbl%vec_len,tbl%vec_len)
     CALL tbl%vec(hash)%put(key=key,val=val)
   END SUBROUTINE put_hash_tbl_sll
-
 
   SUBROUTINE get_hash_tbl_sll(tbl,key,val)
     CLASS(hash_tbl_sll),  INTENT(in)    :: tbl
@@ -143,7 +142,7 @@ MODULE hashtbl
     INTEGER,              INTENT(out)   :: val
     INTEGER                             :: hash
 
-    hash = MOD(key,tbl%vec_len)
+    hash = MOD(key + tbl%vec_len,tbl%vec_len)
     CALL tbl%vec(hash)%get(key=key,val=val)
   END SUBROUTINE get_hash_tbl_sll
 
@@ -153,7 +152,7 @@ MODULE hashtbl
     LOGICAL,              INTENT(out)   :: exists
     INTEGER                             :: hash
 
-    hash = MOD(key,tbl%vec_len)
+    hash = MOD(key + tbl%vec_len,tbl%vec_len)
     CALL tbl%vec(hash)%has(key=key,exists=exists)
   END SUBROUTINE has_hash_tbl_sll
 

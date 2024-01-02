@@ -9,7 +9,15 @@
       "osx": {
         "command": "gfortran"
       },
-      "args": ["-J", "./modules", "-g", "**/*.f95", "-o", "a.out"],
+      "args": [
+        "-J",
+        "./modules",
+        "-fcheck=all",
+        "-g",
+        "**/*.f95",
+        "-o",
+        "a.out"
+      ],
       "group": "build"
     }
   ]

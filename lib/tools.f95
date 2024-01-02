@@ -66,6 +66,7 @@ logical function readInteger(handle, number)
 
   if (readLine(handle, line)) then
     read(line , *) number
+    deallocate(line)
     readInteger = .true.
   else
     number = 0
