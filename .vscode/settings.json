@@ -1,5 +1,5 @@
 {
   "fortran.fortls.disabled": true,
   "fortran.formatting.formatter": "Disabled",
-  "fortran.linter.modOutput": "./modules"
+  "fortran.linter.modOutput": "${workspaceFolder}/modules"
 }

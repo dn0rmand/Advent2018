@@ -9,6 +9,28 @@ module tools
 
   public :: resizeArray
 
+  type, abstract :: sortable
+    integer :: size
+    contains
+      procedure :: sort => quickSort
+      procedure (compare_shape), deferred :: compare
+      procedure (swap_shape), deferred :: swap
+  end type
+
+  interface
+    integer function compare_shape(this, i1, i2)
+        import :: sortable
+        class (sortable), intent (in) :: this
+        integer, intent(in) :: i1, i2 
+    end function
+
+    subroutine swap_shape(this, i1, i2)
+      import :: sortable
+      class (sortable), intent (inout) :: this
+      integer, intent(in) :: i1, i2 
+    end subroutine
+  end interface  
+
 contains
 
 integer function openFile(day)
@@ -92,5 +114,63 @@ subroutine resizeArray(A, size, newSize)
   
   deallocate(B)
 end subroutine resizeArray
+
+integer function partition(a, low, high)
+  class(sortable), intent(inout) :: a
+  integer, intent(in) :: low, high
+  integer :: pivot, i, j, cmp
+
+  pivot = high
+  i = low-1
+
+  do j = low, high-1
+    cmp = a%compare(j, pivot)
+    if (cmp <= 0) then
+      i = i+1
+      call a%swap(i, j)
+    end if
+  end do
+
+  call a%swap(i+1, high)
+  
+  partition = i+1
+end function
+
+recursive subroutine innerQuickSort(a, low, high)
+  class(sortable), intent(inout) :: a
+  integer, intent(in) :: low, high
+  integer :: p
+
+  if (low  < high) then
+    p = partition(a, low, high)
+    call innerQuickSort(a, low, p - 1)
+    call innerQuickSort(a, p + 1, high)
+  end if
+end subroutine
+
+subroutine bubbleSort(a)
+  class (sortable), intent(inout) :: a
+  integer :: i
+
+  i = 1
+  do while (i < a%size)
+      if (a%compare(i, i+1) > 0) then
+        call a%swap(i, i+1)
+        if  (i > 1) then
+          i = i - 1
+        end if
+      else
+        i = i+1
+      end if
+   end do
+end subroutine
+
+subroutine quickSort(this)
+  class (sortable), intent(inout) :: this
+
+  call innerQuickSort(this, 1, this%size)
+
+  ! call bubbleSort(this)
+end subroutine
 
 end module tools

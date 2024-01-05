@@ -54,7 +54,7 @@ integer function Part1()
   do i=1,count
     current = lines(i)
     l = len(current)
-    counts = (/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0/)
+    counts = 0
     do j=1,l
       c = current(j:j)
       k = iachar(c) - A

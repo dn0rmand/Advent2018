@@ -101,7 +101,6 @@ MODULE hashtbl
     END IF
   END SUBROUTINE has_sll
 
-
   RECURSIVE SUBROUTINE free_sll(list)
     CLASS(sllist), INTENT(inout) :: list
     IF (ASSOCIATED(list%child)) THEN
@@ -125,7 +124,6 @@ MODULE hashtbl
     END IF
     tbl%is_init = .TRUE.
   END SUBROUTINE init_hash_tbl_sll
-
 
   SUBROUTINE put_hash_tbl_sll(tbl,key,val)
     CLASS(hash_tbl_sll), INTENT(inout) :: tbl
@@ -155,7 +153,6 @@ MODULE hashtbl
     hash = MOD(key + tbl%vec_len,tbl%vec_len)
     CALL tbl%vec(hash)%has(key=key,exists=exists)
   END SUBROUTINE has_hash_tbl_sll
-
 
   SUBROUTINE free_hash_tbl_sll(tbl)
     CLASS(hash_tbl_sll), INTENT(inout) :: tbl    

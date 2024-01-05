@@ -119,9 +119,10 @@ integer function Part2()
   input = LoadInput()
   Part2 = 0
 
-  do i = 1, input%counts-1
-    overlap(input%claims(i)%id) = .false.
-  end do  
+  overlap = .false.
+  ! do i = 1, input%counts-1
+  !   overlap(input%claims(i)%id) = .false.
+  ! end do  
 
   do i = 1, input%counts-1
     claim_1 = input%claims(i)
