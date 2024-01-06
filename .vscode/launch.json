@@ -11,7 +11,7 @@
       "program": "${workspaceFolder}/a.out",
       "MIMode": "lldb",
       // "miDebuggerPath": "/usr/local/Cellar/gdb/10.2/bin/gdb",
-      "args": [],
+      "args": ["x"],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "externalConsole": false,
