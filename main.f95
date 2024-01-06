@@ -4,6 +4,7 @@ program Advent2018
   use Day2
   use Day3
   use Day4
+  use Day5
 
   implicit none
 
@@ -15,5 +16,6 @@ program Advent2018
   call Day2Solve()
   call Day3Solve()
   call Day4Solve()
+  call Day5Solve()
 
 end program Advent2018

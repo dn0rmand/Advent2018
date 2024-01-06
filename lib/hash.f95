@@ -17,156 +17,169 @@
     ! You should have received a copy of the GNU Lesser General Public License
     ! along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-MODULE hashtbl
-  IMPLICIT NONE ! Use strong typing
-  INTEGER, PARAMETER :: tbl_size = 50
+module hashtbl
+  implicit none ! use strong typing
+  integer, parameter :: tbl_size = 50
 
-  TYPE sllist
-     TYPE(sllist), POINTER :: child => NULL()
+  type sllist
+     type(sllist), pointer :: child => null()
      integer :: key, val
-     logical :: inUse = .FALSE.
-   CONTAINS
-     PROCEDURE :: put  => put_sll
-     PROCEDURE :: get  => get_sll
-     PROCEDURE :: has  => has_sll
-     PROCEDURE :: free => free_sll
-  END TYPE sllist
+     logical :: inUse = .false.
+   contains
+     procedure :: put  => put_sll
+     procedure :: get  => get_sll
+     procedure :: has  => has_sll
+     procedure :: free => free_sll
+  end type sllist
 
-  TYPE hash_tbl_sll
-     TYPE(sllist), DIMENSION(:), ALLOCATABLE :: vec
-     INTEGER                                 :: vec_len = 0
-     LOGICAL                                 :: is_init = .FALSE.
-   CONTAINS
-     PROCEDURE :: init => init_hash_tbl_sll
-     PROCEDURE :: put  => put_hash_tbl_sll
-     PROCEDURE :: get  => get_hash_tbl_sll
-     PROCEDURE :: has  => has_hash_tbl_sll
-     PROCEDURE :: free => free_hash_tbl_sll
-  END TYPE hash_tbl_sll
+  type hash_tbl_sll
+     type(sllist), dimension(:), allocatable :: vec
+     integer                                 :: vec_len = 0
+     logical                                 :: is_init = .false.
+   contains
+     procedure :: init => init_hash_tbl_sll
+     procedure :: put  => put_hash_tbl_sll
+     procedure :: get  => get_hash_tbl_sll
+     procedure :: has  => has_hash_tbl_sll
+     procedure :: free => free_hash_tbl_sll
+  end type hash_tbl_sll
 
-  PUBLIC :: hash_tbl_sll
+  public :: hash_tbl_sll
 
-  CONTAINS
+  contains
 
-  RECURSIVE SUBROUTINE put_sll(list,key,val)
-    CLASS(sllist),    INTENT(inout) :: list
-    integer,          INTENT(in)    :: key, val
+  integer function getHash(key, modulo)
+    integer :: key, modulo, hash
 
-    IF (.NOT. list%inUse) THEN
+    hash = mod(key, modulo)
+    hash = mod(hash + modulo, modulo)
+
+    getHash = hash
+  end function
+
+  recursive subroutine put_sll(list,key,val)
+    class(sllist),    intent(inout) :: list
+    integer,          intent(in)    :: key, val
+
+    if (.not. list%inUse) then
       list%key = key
       list%val = val
       list%inUse = .true.
-    ELSE 
-      IF (list%key .eq. key) THEN
+    else 
+      if (list%key .eq. key) then
         list%val = val
-      ELSE
-        IF ( .NOT. ASSOCIATED(list%child) ) THEN
-          ALLOCATE(list%child)
-        END IF
-        CALL put_sll(list%child, key, val)
-      END IF
-    END IF
-  END SUBROUTINE put_sll
+      else
+        if ( .not. associated(list%child) ) then
+          allocate(list%child)
+        end if
+        call put_sll(list%child, key, val)
+      end if
+    end if
+  end subroutine put_sll
 
+  recursive subroutine get_sll(list,key,val)
+    class(sllist),  intent(in)    :: list
+    integer,        intent(in)    :: key
+    integer,        intent(out)   :: val
 
-  RECURSIVE SUBROUTINE get_sll(list,key,val)
-    CLASS(sllist),  INTENT(in)    :: list
-    integer,        INTENT(in)    :: key
-    integer,        INTENT(out)   :: val
-
-    IF (.not. list%inUse) THEN
+    if (.not. list%inUse) then
       val = -32767
-    ELSE IF (list%key .eq. key) THEN
+    else if (list%key .eq. key) then
        val = list%val
-    ELSE IF (ASSOCIATED(list%child)) THEN ! keep going
-       CALL get_sll(list%child,key,val)
-    ELSE ! At the end of the list, no key found
+    else if (associated(list%child)) then ! keep going
+       call get_sll(list%child,key,val)
+    else ! at the end of the list, no key found
        val = -32767
-    END IF
-  END SUBROUTINE get_sll
+    end if
+  end subroutine get_sll
 
-  RECURSIVE SUBROUTINE has_sll(list,key,exists)
-    CLASS(sllist),  INTENT(in)    :: list
-    integer,        INTENT(in)    :: key
-    logical,        INTENT(out)   :: exists
+  recursive subroutine has_sll(list,key,exists)
+    class(sllist),  intent(in)    :: list
+    integer,        intent(in)    :: key
+    logical,        intent(out)   :: exists
 
-    IF (.not. list%inUse) THEN
+    if (.not. list%inUse) then
       exists = .false.
-    ELSE IF (list%key .eq. key) THEN
+    else if (list%key .eq. key) then
       exists = .true.
-    ELSE IF (ASSOCIATED(list%child)) THEN ! keep going
-      CALL has_sll(list%child,key,exists)
-    ELSE ! At the end of the list, no key found
+    else if (associated(list%child)) then ! keep going
+      call has_sll(list%child,key,exists)
+    else ! at the end of the list, no key found
       exists = .false.
-    END IF
-  END SUBROUTINE has_sll
+    end if
+  end subroutine has_sll
 
-  RECURSIVE SUBROUTINE free_sll(list)
-    CLASS(sllist), INTENT(inout) :: list
-    IF (ASSOCIATED(list%child)) THEN
-       CALL free_sll(list%child)
-       DEALLOCATE(list%child)
-    END IF
-    list%child => NULL()
-  END SUBROUTINE free_sll
+  recursive subroutine free_sll(list)
+    class(sllist), intent(inout) :: list
+    if (associated(list%child)) then
+       call free_sll(list%child)
+       deallocate(list%child)
+    end if
+    list%child => null()
+  end subroutine free_sll
 
-  SUBROUTINE init_hash_tbl_sll(tbl,tbl_len)
-    CLASS(hash_tbl_sll),   INTENT(inout) :: tbl
-    INTEGER,     OPTIONAL, INTENT(in)    :: tbl_len
+  subroutine init_hash_tbl_sll(tbl,tbl_len)
+    class(hash_tbl_sll),   intent(inout) :: tbl
+    integer,     optional, intent(in)    :: tbl_len
 
-    IF (ALLOCATED(tbl%vec)) DEALLOCATE(tbl%vec)
-    IF (PRESENT(tbl_len)) THEN
-       ALLOCATE(tbl%vec(0:tbl_len+1))
+    if (allocated(tbl%vec)) deallocate(tbl%vec)
+    if (present(tbl_len)) then
+       allocate(tbl%vec(0:tbl_len+1))
        tbl%vec_len = tbl_len
-    ELSE
-       ALLOCATE(tbl%vec(0:tbl_size+1))
+    else
+       allocate(tbl%vec(0:tbl_size+1))
        tbl%vec_len = tbl_size
-    END IF
-    tbl%is_init = .TRUE.
-  END SUBROUTINE init_hash_tbl_sll
+    end if
+    tbl%is_init = .true.
+  end subroutine init_hash_tbl_sll
 
-  SUBROUTINE put_hash_tbl_sll(tbl,key,val)
-    CLASS(hash_tbl_sll), INTENT(inout) :: tbl
-    INTEGER,             INTENT(in)    :: key, val
-    INTEGER                            :: hash
+  subroutine put_hash_tbl_sll(tbl,key,val)
+    class(hash_tbl_sll), intent(inout) :: tbl
+    integer,             intent(in)    :: key, val
+    integer                            :: hash
 
-    hash = MOD(key + tbl%vec_len,tbl%vec_len)
-    CALL tbl%vec(hash)%put(key=key,val=val)
-  END SUBROUTINE put_hash_tbl_sll
+    hash = getHash(key, tbl%vec_len)
+    call tbl%vec(hash)%put(key=key,val=val)
+  end subroutine put_hash_tbl_sll
 
-  SUBROUTINE get_hash_tbl_sll(tbl,key,val)
-    CLASS(hash_tbl_sll),  INTENT(in)    :: tbl
-    INTEGER,              INTENT(in)    :: key
-    INTEGER,              INTENT(out)   :: val
-    INTEGER                             :: hash
+  integer function get_hash_tbl_sll(tbl,key)
+    class(hash_tbl_sll),  intent(in)    :: tbl
+    integer,              intent(in)    :: key
+    integer                             :: val
+    integer                             :: hash
 
-    hash = MOD(key + tbl%vec_len,tbl%vec_len)
-    CALL tbl%vec(hash)%get(key=key,val=val)
-  END SUBROUTINE get_hash_tbl_sll
+    hash = getHash(key, tbl%vec_len)
+    call tbl%vec(hash)%get(key=key,val=val)
+    get_hash_tbl_sll = val
+end function get_hash_tbl_sll
 
-  SUBROUTINE has_hash_tbl_sll(tbl,key,exists)
-    CLASS(hash_tbl_sll),  INTENT(in)    :: tbl
-    INTEGER,              INTENT(in)    :: key
-    LOGICAL,              INTENT(out)   :: exists
-    INTEGER                             :: hash
+  logical function has_hash_tbl_sll(tbl, key)
+    class(hash_tbl_sll), intent(in)    :: tbl
+    integer,             intent(in)    :: key
+    logical                            :: exists
+    integer                            :: hash
 
-    hash = MOD(key + tbl%vec_len,tbl%vec_len)
-    CALL tbl%vec(hash)%has(key=key,exists=exists)
-  END SUBROUTINE has_hash_tbl_sll
+    hash = getHash(key, tbl%vec_len)
+    if (hash < 0) then
+      print *, key, hash
+    end if
+    call tbl%vec(hash)%has(key=key,exists=exists)
+    has_hash_tbl_sll = exists
+  end function has_hash_tbl_sll
 
-  SUBROUTINE free_hash_tbl_sll(tbl)
-    CLASS(hash_tbl_sll), INTENT(inout) :: tbl    
-    INTEGER     :: i, low, high
+  subroutine free_hash_tbl_sll(tbl)
+    class(hash_tbl_sll), intent(inout) :: tbl    
+    integer     :: i, low, high
 
-    low  = LBOUND(tbl%vec,dim=1)
-    high = UBOUND(tbl%vec,dim=1) 
-    IF (ALLOCATED(tbl%vec)) THEN
-       DO i=low,high
-          CALL tbl%vec(i)%free()
-       END DO
-       DEALLOCATE(tbl%vec)
-    END IF
-    tbl%is_init = .FALSE.
-  END SUBROUTINE free_hash_tbl_sll
+    low  = lbound(tbl%vec,dim=1)
+    high = ubound(tbl%vec,dim=1) 
+    if (allocated(tbl%vec)) then
+       do i=low,high
+          call tbl%vec(i)%free()
+       end do
+       deallocate(tbl%vec)
+    end if
+    tbl%is_init = .false.
+  end subroutine free_hash_tbl_sll
 
-END MODULE hashtbl
+end module hashtbl

@@ -6,64 +6,73 @@ module Day1
     private :: Part1, Part2
     public :: Day1Solve
 
+    type :: t_input
+      integer :: frequencies(1500)
+      integer :: size
+    end type 
 contains
 
-integer function Part1()
-    integer :: frequency
-    integer :: file
-    integer :: num
+type(t_input) function LoadInput()
+  integer :: file
+  integer :: frequency
+  type(t_input) :: input 
 
-    frequency = 0
+  input%size = 0
 
-    file = openFile(1)
+  file = openFile(1)
 
-    do while(readInteger(file, num))
-        frequency = frequency + num
-    end do
+  do while(readInteger(file, frequency))
+    input%size = input%size + 1
+    input%frequencies(input%size) = frequency
+  end do
 
-    call closeFile(file)
+  call closeFile(file)
 
-    Part1 = frequency
+  LoadInput = input
+end function LoadInput
+
+integer function Part1()  
+  type(t_input) :: input
+  integer :: frequency
+  integer :: i
+
+  input = LoadInput()
+
+  frequency = 0
+
+  do i = 1,input%size
+      frequency = frequency + input%frequencies(i)
+  end do
+
+  Part1 = frequency
 end function Part1
 
-! integer function Part2()
 integer function Part2()
-    logical :: found
-    integer :: frequency
-    integer :: file
-    integer :: R
-    integer :: num
-    integer :: steps 
+  logical :: found
+  integer :: frequency, i
+  type(t_input) :: input  
+  type(hash_tbl_sll) :: visited
 
-    type(hash_tbl_sll) :: visited
+  input = LoadInput()
 
-    call visited%init(1031)
+  call visited%init(1031)
 
-    R = 0
-    found = .false.
+  found = .false.
+  frequency = 0
+  i = 0
+  Part2 = 0
 
-    file = openFile(1)
-
-    steps = 0
-    frequency = 0
-    do while (.not. found)
-        rewind(file)
-        do while(.not. found .and. readInteger(file, num))
-            frequency = frequency + num
-            call visited%has(key=frequency, exists=found)
-            if (.not. found) then
-              call visited%put(key=frequency, val=frequency)
-            else
-              ! already visited
-              R = frequency
-            end if
-        end do
-    end do
-
-    call closeFile(file)
-
-    Part2 = R
-  end function Part2
+  do while (.not. found)
+    i = mod(i, input%size)+1
+    frequency = frequency + input%frequencies(i)
+    found = visited%has(key=frequency)
+    if (.not. found) then
+      call visited%put(key=frequency, val=frequency)
+    else
+      Part2 = frequency
+    end if
+  end do
+end function
 
 subroutine Day1Solve()
     integer :: R
