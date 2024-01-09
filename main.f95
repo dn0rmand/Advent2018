@@ -8,6 +8,7 @@ program Advent2018
    use Day6
    use Day7
    use Day8
+   use Day9
 
    implicit none
 
@@ -39,8 +40,10 @@ program Advent2018
             call Day7Solve()
          case ('8')
             call Day8Solve()
+         case ('9')
+            call Day9Solve()
          case ('x')
-            call Day8Solve()
+            call Day9Solve()
          end select
       end do
    else
@@ -52,6 +55,7 @@ program Advent2018
       call Day6Solve()
       call Day7Solve()
       call Day8Solve()
+      call Day9Solve()
    end if
 
 end program Advent2018

@@ -9,7 +9,7 @@ module Day0
 
 contains
 
-   subroutine LoadInput()
+   subroutine loadInput()
       integer :: file
       character(:), allocatable :: line
 
