@@ -1,5 +1,6 @@
 {
   "fortran.fortls.disabled": true,
   "fortran.formatting.formatter": "fprettify",
-  "fortran.linter.modOutput": "${workspaceFolder}/modules"
+  "fortran.linter.modOutput": "${workspaceFolder}/modules",
+  "debug.console.collapseIdenticalLines": false
 }
