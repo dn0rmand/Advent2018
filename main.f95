@@ -10,6 +10,7 @@ program Advent2018
    use Day8
    use Day9
    use Day10
+   use Day11
 
    implicit none
 
@@ -24,30 +25,10 @@ program Advent2018
    if (num_args > 0) then
       do ix = 1, num_args
          call get_command_argument(ix, arg)
-         select case (arg)
-         case ('1')
-            call Day1Solve()
-         case ('2')
-            call Day2Solve()
-         case ('3')
-            call Day3Solve()
-         case ('4')
-            call Day4Solve()
-         case ('5')
-            call Day5Solve()
-         case ('6')
-            call Day6Solve()
-         case ('7')
-            call Day7Solve()
-         case ('8')
-            call Day8Solve()
-         case ('9')
-            call Day9Solve()
-         case ('10')
-            call Day10Solve()
-         case ('x')
-            call Day10Solve()
-         end select
+         if (arg == 'x') then
+            call Day11Solve()
+            exit
+         end if
       end do
    else
       call Day1Solve()
@@ -60,6 +41,7 @@ program Advent2018
       call Day8Solve()
       call Day9Solve()
       call Day10Solve()
+      call Day11Solve()
    end if
 
 end program Advent2018
