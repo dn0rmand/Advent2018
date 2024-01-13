@@ -26,7 +26,7 @@ program Advent2018
       do ix = 1, num_args
          call get_command_argument(ix, arg)
          if (arg == 'x') then
-            call Day11Solve()
+            call Day10Solve()
             exit
          end if
       end do

@@ -1,6 +1,7 @@
 module Day10
 
    use tools
+   use ocr
    use screen
 
    implicit none
@@ -19,7 +20,7 @@ module Day10
       type(t_point) :: points(350)
    contains
       procedure :: move => input_move
-      procedure :: dump => input_dump
+      procedure :: translate => input_translate
       procedure :: height => input_height
       procedure :: width => input_width
    end type
@@ -75,7 +76,7 @@ contains
       input_width = abs(input%maxX - input%minX) + 1
    end function
 
-   subroutine input_dump(input)
+   character(8) function input_translate(input)
       class(t_input), intent(in), target :: input
       type(t_point), pointer :: point
       type(t_screen) :: screen
@@ -92,10 +93,10 @@ contains
          y = point%y - input%minY + 1
          call screen%set(x, y, .true.)
       end do
-
-      call screen%print()
+      input_translate = translate(screen)
+      ! call screen%print()
       call screen%free()
-   end subroutine
+   end function
 
    type(t_input) function loadInput()
       type(t_input) :: input
@@ -130,15 +131,14 @@ contains
       loadInput = input
    end function
 
-   subroutine Part1(input, time)
+   character(10) function Part1(input, time)
       type(t_input) :: input
       integer :: time
 
       input = input%move(time)
 
-      print *, 'Answer to part 1 is '
-      call input%dump()
-   end subroutine
+      Part1 = input%translate()
+   end function
 
    integer function Part2(input)
       type(t_input) :: input
@@ -160,7 +160,9 @@ contains
    end function
 
    subroutine Day10Solve()
-      integer :: answer1, answer2
+      character(10) :: answer1
+      integer :: answer2
+
       type(t_input) :: input
 
       print *, '--- Day 10 ---'
@@ -168,9 +170,9 @@ contains
       input = loadInput()
 
       answer2 = Part2(input)
+      answer1 = Part1(input, answer2)
 
-      call Part1(input, answer2)
-
+      print *, 'Answer to part 1 is ', answer1
       print *, 'Answer to part 2 is ', answer2
    end subroutine
 

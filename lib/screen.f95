@@ -44,8 +44,9 @@ contains
 
       allocate (line(screen%width))
 
-      do y = 1, screen%height
-         do x = 1, screen%width
+      do y = 1, screen%height, 1
+         ! if (y == 1 .or. y == 5 .or. y == 10) then
+         do x = 1, screen%width, 1
             if (screen%pixels(x, y)) then
                line(x:x) = '#'
             else
@@ -53,6 +54,7 @@ contains
             end if
          end do
          print *, line
+         !  end if
       end do
       print *, ''
       deallocate (line)
