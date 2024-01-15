@@ -18,27 +18,27 @@ module ocr
       procedure :: get => letters_get
    end type
 
-   integer(kind=4), parameter :: E = int(b'111111111110111111', 4)
-   integer(kind=4), parameter :: H = int(b'100001111111100001', 4)
    integer(kind=4), parameter :: A = int(b'001100100001100001', 4)
-   integer(kind=4), parameter :: Z = int(b'111111000100111111', 4)
+   integer(kind=4), parameter :: C = int(b'011110100000011110', 4)
+   integer(kind=4), parameter :: E = int(b'111111111110111111', 4)
+   integer(kind=4), parameter :: F = int(b'111111111110100000', 4)
+   integer(kind=4), parameter :: H = int(b'100001111111100001', 4)
+   integer(kind=4), parameter :: J = int(b'000111000010011100', 4)
+   integer(kind=4), parameter :: K = int(b'100001110000100001', 4)
+   integer(kind=4), parameter :: N = int(b'100001101001100001', 4)
    integer(kind=4), parameter :: P = int(b'111110111110100000', 4)
+   integer(kind=4), parameter :: R = int(b'111110111110100001', 4)
+   integer(kind=4), parameter :: Z = int(b'111111000100111111', 4)
 
    ! need other input to figure out how to encode other letters
    integer(kind=4), parameter :: B = -1
-   integer(kind=4), parameter :: C = -1
    integer(kind=4), parameter :: D = -1
-   integer(kind=4), parameter :: F = -1
    integer(kind=4), parameter :: G = -1
    integer(kind=4), parameter :: I = -1
-   integer(kind=4), parameter :: J = -1
-   integer(kind=4), parameter :: K = -1
    integer(kind=4), parameter :: L = -1
    integer(kind=4), parameter :: M = -1
-   integer(kind=4), parameter :: N = -1
    integer(kind=4), parameter :: O = -1
    integer(kind=4), parameter :: Q = -1
-   integer(kind=4), parameter :: R = -1
    integer(kind=4), parameter :: S = -1
    integer(kind=4), parameter :: T = -1
    integer(kind=4), parameter :: U = -1
@@ -100,21 +100,21 @@ contains
       value = 0
 
       do x = 1, 6
-         value = value*2
+         value = ishft(value, 1)
          if (screen%pixels(x + index, 1)) then
-            value = value + 1
+            value = ibset(value, 0)
          end if
       end do
       do x = 1, 6
-         value = value*2
+         value = ishft(value, 1)
          if (screen%pixels(x + index, 5)) then
-            value = value + 1
+            value = ibset(value, 0)
          end if
       end do
       do x = 1, 6
-         value = value*2
+         value = ishft(value, 1)
          if (screen%pixels(x + index, 10)) then
-            value = value + 1
+            value = ibset(value, 0)
          end if
       end do
       letters_get = '?'

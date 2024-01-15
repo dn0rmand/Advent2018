@@ -37,24 +37,25 @@ contains
       screen%pixels(x, y) = pixel
    end subroutine
 
-   subroutine screen_print(screen)
+   subroutine screen_print(screen, all)
       class(t_screen), intent(in) :: screen
+      integer, intent(in) :: all
       character, allocatable :: line(:)
       integer :: x, y
 
       allocate (line(screen%width))
 
       do y = 1, screen%height, 1
-         ! if (y == 1 .or. y == 5 .or. y == 10) then
-         do x = 1, screen%width, 1
-            if (screen%pixels(x, y)) then
-               line(x:x) = '#'
-            else
-               line(x:x) = ' '
-            end if
-         end do
-         print *, line
-         !  end if
+         if (all == 1 .or. y == 1 .or. y == 5 .or. y == 10) then
+            do x = 1, screen%width, 1
+               if (screen%pixels(x, y)) then
+                  line(x:x) = '#'
+               else
+                  line(x:x) = ' '
+               end if
+            end do
+            print *, line
+         end if
       end do
       print *, ''
       deallocate (line)

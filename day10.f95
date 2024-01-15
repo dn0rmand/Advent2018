@@ -76,7 +76,7 @@ contains
       input_width = abs(input%maxX - input%minX) + 1
    end function
 
-   character(8) function input_translate(input)
+   character(10) function input_translate(input)
       class(t_input), intent(in), target :: input
       type(t_point), pointer :: point
       type(t_screen) :: screen
@@ -94,7 +94,10 @@ contains
          call screen%set(x, y, .true.)
       end do
       input_translate = translate(screen)
-      ! call screen%print()
+      ! x = 1
+      ! y = 0
+      ! call screen%print(x)
+      ! call screen%print(y)
       call screen%free()
    end function
 

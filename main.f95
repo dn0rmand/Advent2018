@@ -12,6 +12,7 @@ program Advent2018
    use Day10
    use Day11
    use Day12
+   use Day13
 
    implicit none
 
@@ -27,7 +28,7 @@ program Advent2018
       do ix = 1, num_args
          call get_command_argument(ix, arg)
          if (arg == 'x') then
-            call Day12Solve()
+            call Day13Solve()
             exit
          end if
       end do
@@ -44,6 +45,7 @@ program Advent2018
       call Day10Solve()
       call Day11Solve()
       call Day12Solve()
+      call Day13Solve()
    end if
 
 end program Advent2018

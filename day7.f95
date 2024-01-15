@@ -186,7 +186,7 @@ contains
       !    3. we must be done
 
       status = 2
-      do while (.not. status == 3)
+      do while (status /= 3)
          if (status == 1) then
             busyness = max(worker_times(1), worker_times(2), worker_times(3), worker_times(4), worker_times(5))
             if (busyness == 0) then

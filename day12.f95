@@ -122,9 +122,9 @@ contains
       do while (readLine(file, line))
          key = 0
          do i = 1, 5
-            key = key*2
+            key = ishft(key, 1)
             if (line(i:i) == '#') then
-               key = key + 1
+               key = ibset(key, 0)
             end if
          end do
          input%transforms(key + 1) = line(10:10) == '#'
@@ -167,9 +167,9 @@ contains
       do i = -3, input%length() + 4
          key = 0
          do j = 0, 4
-            key = key*2
+            key = ishft(key, 1)
             if (input%get(i + j)) then
-               key = key + 1
+               key = ibset(key, 0)
             end if
          end do
          newState%pots(i + 6) = input%transforms(key + 1)
@@ -217,7 +217,7 @@ contains
    subroutine Day12Solve()
       integer(kind=8) :: answer
 
-      print *, '--- Day 0 ---'
+      print *, '--- Day 12 ---'
 
       answer = Part1()
       print *, 'Answer to part 1 is ', answer

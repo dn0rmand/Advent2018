@@ -28,12 +28,12 @@ contains
       integer :: rackId
       integer :: power_level
 
-      rackId = mod(x + 10, 1000)
-      power_level = mod(rackId*y, 1000)
-      power_level = mod(power_level + input, 1000)
-      power_level = mod(power_level*rackId, 1000)
-      power_level = (power_level - mod(power_level, 100))/100
-      powerLevel = mod(power_level, 10) - 5
+      rackId = modulo(x + 10, 1000)
+      power_level = modulo(rackId*y, 1000)
+      power_level = modulo(power_level + input, 1000)
+      power_level = modulo(power_level*rackId, 1000)
+      power_level = (power_level - modulo(power_level, 100))/100
+      powerLevel = modulo(power_level, 10) - 5
    end function
 
    integer function input_get(input, x, y)
@@ -126,24 +126,19 @@ contains
    character(7) function Part1()
       type(t_input) :: input
       type(t_max_power) :: max_power
-      character(3) :: line1, line2
 
       input = loadInput(); 
       max_power = input%maxPower(3)
 
       call input%free()
 
-      write (line1, '(I3)') max_power%x
-      write (line2, '(I3)') max_power%y
-
-      Part1 = trim(adjustl(line1))//','//trim(adjustl(line2))
+      Part1 = trim(itoa(max_power%x))//','//trim(itoa(max_power%y))
    end function
 
    character(11) function Part2()
       type(t_input) :: input
       integer :: size
       type(t_max_power) :: max_power, mp
-      character(3) :: line1, line2, line3
 
       input = loadInput(); 
       max_power = input%maxPower(2)
@@ -156,17 +151,14 @@ contains
 
       call input%free()
 
-      write (line1, '(I3)') max_power%x
-      write (line2, '(I3)') max_power%y
-      write (line3, '(I3)') max_power%size
-      Part2 = trim(adjustl(line1))//','//trim(adjustl(line2))//','//trim(adjustl(line3))
+      Part2 = trim(itoa(max_power%x))//','//trim(itoa(max_power%y))//','//trim(itoa(max_power%size))
    end function
 
    subroutine Day11Solve()
       character(7) :: answer1
       character(11) :: answer2
 
-      print *, '--- Day 0 ---'
+      print *, '--- Day 11 ---'
 
       answer1 = Part1()
       print *, 'Answer to part 1 is ', answer1

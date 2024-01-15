@@ -45,7 +45,7 @@ contains
       marble => circle%current
       last = circle%current%value
 
-      do while (.not. marble%value == last)
+      do while (marble%value /= last)
          tmp => marble
          marble => marble%next
          deallocate (tmp)
@@ -116,10 +116,10 @@ contains
       call circle%init()
 
       do marble = 1, points
-         if (.not. mod(marble, 23) == 0) then
+         if (modulo(marble, 23) /= 0) then
             call circle%add(marble)
          else
-            player = mod(marble - 1, players) + 1
+            player = modulo(marble - 1, players) + 1
             scores(player) = scores(player) + circle%score(marble)
             maxScore = max(maxScore, scores(player))
          end if
