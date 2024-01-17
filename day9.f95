@@ -125,6 +125,8 @@ contains
          end if
       end do
 
+      deallocate (scores)
+
       call circle%cleanup()
 
       process = maxScore
