@@ -31,6 +31,10 @@ program Advent2018
    integer :: num_args, ix
    character(len=20) :: arg
    real :: start, finish
+
+   !  print *, 'Press Enter to start'
+   !  read (*, *)
+
    print *, '##################################'
    print *, '# Advent of Code 2018 in Fortran #'
    print *, '##################################'
@@ -41,7 +45,7 @@ program Advent2018
          call get_command_argument(ix, arg)
          if (arg == 'x') then
             call cpu_time(start)
-            call Day14Solve()
+            call Day15Solve()
             call cpu_time(finish)
             print '("Executed in ",f6.3," seconds.")', finish - start
             exit
