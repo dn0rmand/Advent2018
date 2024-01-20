@@ -12,6 +12,9 @@ module Day15
    integer(kind=1), parameter :: GOBLIN = 2
    integer(kind=1), parameter :: WALL = 10
 
+   integer(kind=2), parameter :: DEFAULT_HIT_POINTS = 200
+   integer, parameter :: SIZE = 32
+
    type :: t_state
       integer :: x, y
       integer :: x0, y0
@@ -20,7 +23,7 @@ module Day15
    type :: t_state_collection
       type(t_state), dimension(500) :: states1, states2
       type(t_state), dimension(:), pointer :: states, newStates
-      logical, dimension(32, 32) :: visited
+      logical, dimension(SIZE, SIZE) :: visited
       integer :: count, newCount
    contains
       procedure :: initialize => states_initialize
@@ -36,10 +39,11 @@ module Day15
    end type
 
    type :: t_input
-      type(t_unit), dimension(32, 32) :: map
+      type(t_unit), dimension(SIZE, SIZE) :: map
       integer :: round
       integer :: goblins
       integer :: elfs
+      integer(kind=2) :: elfPower
    contains
       procedure :: get => input_get_unit
       procedure :: getType => input_get_unit_type
@@ -48,6 +52,8 @@ module Day15
       procedure :: canAttack => input_canAttack
       procedure :: attack => input_attack
       procedure :: move => input_move
+      procedure :: score => input_score
+      procedure :: dump => input_dump
    end type
 
 contains
@@ -118,7 +124,7 @@ contains
 
       unit%type = WALL
 
-      if (x < 1 .or. x > 32 .or. y < 1 .or. y > 32) then
+      if (x < 1 .or. x > SIZE .or. y < 1 .or. y > SIZE) then
          input_get_unit = unit
       else
          input_get_unit = input%map(x, y)
@@ -190,9 +196,9 @@ contains
 
       call states%initialize()
 
+      call states%add(input, player, x, y - 1, x, y - 1)
       call states%add(input, player, x - 1, y, x - 1, y)
       call states%add(input, player, x + 1, y, x + 1, y)
-      call states%add(input, player, x, y - 1, x, y - 1)
       call states%add(input, player, x, y + 1, x, y + 1)
       call states%swap()
 
@@ -203,28 +209,22 @@ contains
                ! found
                if (best%x == 0) then
                   best = state
-               else if (input%map(state%x, state%y)%hit_points < input%map(best%x, best%y)%hit_points) then
+               else if (best%y > state%y .or. (best%y == state%y .and. best%x > state%x)) then
                   best = state
-               else if (input%map(state%x, state%y)%hit_points == input%map(best%x, best%y)%hit_points) then
-                  if (best%y > state%y .or. (best%y == state%y .and. best%x > state%x)) then
-                     best = state
-                  end if
                end if
             else
+               call states%add(input, player, state%x, state%y - 1, state%x0, state%y0)
                call states%add(input, player, state%x - 1, state%y, state%x0, state%y0)
                call states%add(input, player, state%x + 1, state%y, state%x0, state%y0)
-               call states%add(input, player, state%x, state%y - 1, state%x0, state%y0)
                call states%add(input, player, state%x, state%y + 1, state%x0, state%y0)
             end if
          end do
          if (best%x /= 0) then
-            ! print *, x, y, '->', best%x0, best%y0
             unit = input%map(x, y)
             input%map(x, y)%type = EMPTY
             x = best%x0
             y = best%y0
             input%map(x, y) = unit
-            ! print *, input%map(x, y)%type, player
             return
          end if
          call states%swap()
@@ -233,7 +233,7 @@ contains
 
    subroutine input_attack(input, x, y)
       class(t_input), intent(inout) :: input
-      integer(kind=2) :: power
+      integer(kind=2) :: power, hp
       integer :: target_hit_points
       logical :: hasTarget
       integer, intent(inout) :: x, y
@@ -257,7 +257,7 @@ contains
       end if
 
       if (input%getType(x0 - 1, y0) == type) then
-         if ((.not. hasTarget) .and. input%getHitPoints(x0 - 1, y0) < target_hit_points) then
+         if ((.not. hasTarget) .or. input%getHitPoints(x0 - 1, y0) < target_hit_points) then
             hasTarget = .true.
             x = x0 - 1
             y = y0
@@ -266,7 +266,7 @@ contains
       end if
 
       if (input%getType(x0 + 1, y0) == type) then
-         if ((.not. hasTarget) .and. input%getHitPoints(x0 + 1, y0) < target_hit_points) then
+         if ((.not. hasTarget) .or. input%getHitPoints(x0 + 1, y0) < target_hit_points) then
             hasTarget = .true.
             x = x0 + 1
             y = y0
@@ -275,7 +275,7 @@ contains
       end if
 
       if (input%getType(x0, y0 + 1) == type) then
-         if ((.not. hasTarget) .and. input%getHitPoints(x0, y0 + 1) < target_hit_points) then
+         if ((.not. hasTarget) .or. input%getHitPoints(x0, y0 + 1) < target_hit_points) then
             hasTarget = .true.
             x = x0
             y = y0 + 1
@@ -285,11 +285,15 @@ contains
 
       if (hasTarget) then
          power = 3
-         if (type == GOBLIN) then
+         if (type == ELF) then
             power = 3
+         else
+            power = input%elfPower
          end if
-         input%map(x, y)%hit_points = input%map(x, y)%hit_points - power
-         if (input%map(x, y)%hit_points == 0) then
+         hp = input%map(x, y)%hit_points
+         hp = hp - min(hp, power)
+         input%map(x, y)%hit_points = hp
+         if (hp == 0) then
             ! DEAD
             if (type == ELF) then
                input%elfs = input%elfs - 1
@@ -299,6 +303,48 @@ contains
             input%map(x, y)%type = EMPTY
          end if
       end if
+   end subroutine
+
+   integer function input_score(input)
+      class(t_input), intent(in) :: input
+      integer :: x, y, score
+      type(t_unit) :: unit
+
+      score = 0
+      do y = 1, SIZE
+         do x = 1, SIZE
+            unit = input%map(x, y)
+            if (unit%type == ELF .or. unit%type == GOBLIN) then
+               score = score + unit%hit_points
+            end if
+         end do
+      end do
+
+      input_score = input%round*score
+   end function
+
+   subroutine input_dump(input)
+      class(t_input), intent(in) :: input
+      integer :: x, y
+      character(SIZE) :: line
+
+      print *, 'Round', input%round
+      do y = 1, SIZE
+         do x = 1, SIZE
+            select case (input%getType(x, y))
+            case (WALL)
+               line(x:x) = '#'
+            case (EMPTY)
+               line(x:x) = '.'
+            case (ELF)
+               line(x:x) = 'E'
+            case (GOBLIN)
+               line(x:x) = 'G'
+            end select
+         end do
+
+         print *, line
+      end do
    end subroutine
 
    ! --- END INPUT METHODS ---
@@ -324,8 +370,8 @@ contains
       integer :: x, y
 
       input%round = input%round + 1
-      do y = 1, 32
-         do x = 1, 32
+      do y = 1, SIZE
+         do x = 1, SIZE
             unit = input%map(x, y)
             if (unit%round == input%round) then
                cycle
@@ -334,11 +380,11 @@ contains
             if (unit%type /= ELF .and. unit%type /= GOBLIN) then
                cycle
             end if
-            call play_turn(input, x, y)
-
             if (input%elfs == 0 .or. input%goblins == 0) then
+               input%round = input%round - 1
                return
             end if
+            call play_turn(input, x, y)
          end do
       end do
    end subroutine
@@ -359,6 +405,7 @@ contains
       input%elfs = 0
       input%goblins = 0
       input%round = 0
+      input%elfPower = 3
 
       y = 0
       do while (readLine(file, line))
@@ -370,11 +417,11 @@ contains
             case ('.')
                unit%type = EMPTY
             case ('E')
-               unit%hit_points = int(200, 2)
+               unit%hit_points = DEFAULT_HIT_POINTS
                unit%type = ELF
                input%elfs = input%elfs + 1
             case ('G')
-               unit%hit_points = int(200, 2)
+               unit%hit_points = DEFAULT_HIT_POINTS
                unit%type = GOBLIN
                input%goblins = input%goblins + 1
             case default
@@ -395,16 +442,51 @@ contains
       type(t_input) :: input
 
       input = loadInput(); 
-      call play_round(input)
-
-      Part1 = 0
+      do while (input%elfs /= 0 .and. input%goblins /= 0)
+         call play_round(input)
+      end do
+      Part1 = input%score()
    end function
 
    integer function Part2()
       type(t_input) :: input
+      type(t_input) :: backup
+      integer :: min, max, current
+      integer :: elfs
 
       input = loadInput(); 
-      Part2 = 0
+      elfs = input%elfs
+
+      min = 4
+      max = 200
+
+      backup = input
+
+      do while (min < max)
+         input = backup
+         current = (min + max)/2
+         input%elfPower = int(current, 2)
+
+         do while (input%elfs == elfs .and. input%goblins /= 0)
+            call play_round(input)
+         end do
+
+         if (input%goblins == 0 .and. input%elfs == elfs) then
+            ! won
+            max = current
+         else
+            ! lost
+            min = current + 1
+         end if
+      end do
+
+      input = backup
+      input%elfPower = int(max, 2)
+      do while (input%goblins /= 0)
+         call play_round(input)
+      end do
+
+      Part2 = input%score()
    end function
 
    subroutine Day15Solve()
