@@ -15,6 +15,7 @@
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "externalConsole": false,
+      "internalConsoleOptions": "openOnSessionStart",
       "preLaunchTask": "CompileFortran"
       // "setupCommands": [
       //   {
