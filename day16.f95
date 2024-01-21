@@ -1,34 +1,12 @@
 module Day16
 
    use tools
+   use opcodes
 
    implicit none
 
    private :: Part1, Part2
    public :: Day16Solve
-
-   integer, parameter :: addr = 0
-   integer, parameter :: addi = 1
-
-   integer, parameter :: mulr = 2
-   integer, parameter :: muli = 3
-
-   integer, parameter :: banr = 4
-   integer, parameter :: bani = 5
-
-   integer, parameter :: borr = 6
-   integer, parameter :: bori = 7
-
-   integer, parameter :: setr = 8
-   integer, parameter :: seti = 9
-
-   integer, parameter :: gtir = 10
-   integer, parameter :: gtri = 11
-   integer, parameter :: gtrr = 12
-
-   integer, parameter :: eqir = 13
-   integer, parameter :: eqri = 14
-   integer, parameter :: eqrr = 15
 
    type :: t_map
       integer(kind=1), dimension(0:15) :: values
@@ -40,12 +18,6 @@ module Day16
       integer, dimension(0:3) :: values
    contains
       procedure :: equal => registers_equal
-   end type
-
-   type :: t_instruction
-      integer :: opcode, A, B, C
-   contains
-      procedure :: execute => instruction_execute
    end type
 
    type :: t_sample
@@ -143,69 +115,11 @@ contains
       registers_equal = eq
    end function
 
-   integer function asInt(value)
-      logical :: value
-
-      if (value) then
-         asInt = 1
-      else
-         asInt = 0
-      end if
-   end function
-
-   subroutine instruction_execute(this, reg)
-      class(t_instruction), intent(in) :: this
-      type(t_registers), intent(inout) :: reg
-
-      select case (this%opcode)
-      case (addr)
-         reg%values(this%C) = reg%values(this%A) + reg%values(this%B)
-      case (addi)
-         reg%values(this%C) = reg%values(this%A) + this%B
-
-      case (mulr)
-         reg%values(this%C) = reg%values(this%A)*reg%values(this%B)
-      case (muli)
-         reg%values(this%C) = reg%values(this%A)*this%B
-
-      case (banr)
-         reg%values(this%C) = iand(reg%values(this%A), reg%values(this%B))
-      case (bani)
-         reg%values(this%C) = iand(reg%values(this%A), this%B)
-
-      case (borr)
-         reg%values(this%C) = ior(reg%values(this%A), reg%values(this%B))
-      case (bori)
-         reg%values(this%C) = ior(reg%values(this%A), this%B)
-
-      case (setr)
-         reg%values(this%C) = reg%values(this%A)
-      case (seti)
-         reg%values(this%C) = this%A
-
-      case (gtir)
-         reg%values(this%C) = asInt(this%A > reg%values(this%B))
-      case (gtri)
-         reg%values(this%C) = asInt(reg%values(this%A) > this%B)
-      case (gtrr)
-         reg%values(this%C) = asInt(reg%values(this%A) > reg%values(this%B))
-
-      case (eqir)
-         reg%values(this%C) = asInt(this%A == reg%values(this%B))
-      case (eqri)
-         reg%values(this%C) = asInt(reg%values(this%A) == this%B)
-      case (eqrr)
-         reg%values(this%C) = asInt(reg%values(this%A) == reg%values(this%B))
-
-      case default
-         stop 'Invalid opcode'
-      end select
-   end subroutine
-
    integer function sample_resolve(this, input)
       class(t_sample), intent(in) :: this
       type(t_input), intent(inout) :: input
-      type(t_registers) :: registers
+      type(t_registers), target :: registers
+      integer, dimension(:), pointer :: reg
       type(t_instruction) :: instruction
       integer :: i, count, opcode
 
@@ -213,10 +127,12 @@ contains
       opcode = instruction%opcode
       count = 0
 
+      reg => registers%values
+
       do i = 0, 15
          registers = this%before
          instruction%opcode = i
-         call instruction%execute(registers)
+         call instruction%execute(reg)
          if (registers%equal(this%after)) then
             input%opcodes(opcode)%values(i) = 1
             count = count + 1
@@ -278,18 +194,20 @@ contains
    integer function Part2(input)
       type(t_input), intent(inout) :: input
       integer :: mapping(0:15)
-      type(t_registers) :: registers
+      type(t_registers), target :: registers
+      integer, dimension(:), pointer :: regs
       type(t_instruction) :: instruction
       integer :: ip
 
       call finishMapping(input, mapping)
 
       registers%values = 0
+      regs => registers%values
 
       do ip = 1, input%programSize
          instruction = input%program(ip)
          instruction%opcode = mapping(instruction%opcode)
-         call instruction%execute(registers)
+         call instruction%execute(regs)
       end do
       Part2 = registers%values(0)
    end function
