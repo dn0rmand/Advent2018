@@ -5,7 +5,7 @@ module tools
    public :: closeFile
    public :: readLine
    public :: readInteger
-   public :: itoa
+   public :: itoa, itoHex
    public :: resizeArray
 
    type, abstract :: sortable
@@ -176,8 +176,17 @@ contains
       integer :: value
       character(10) :: result
 
-      write (result, '(I7)') value
+      write (result, '(I10)') value
 
       itoa = trim(adjustl(result))
+   end function
+
+   character(6) function itoHex(value)
+      integer :: value
+      character(6) :: result
+
+      write (result, '(Z6.6)') value
+
+      itoHex = result
    end function
 end module tools

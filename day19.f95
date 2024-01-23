@@ -8,35 +8,7 @@ module Day19
    private :: Part1, Part2
    public :: Day19Solve
 
-   type :: t_program
-      integer :: ip_register
-      type(t_instruction), dimension(0:50) :: instructions
-      integer :: size
-   contains
-      procedure :: execute => program_execute
-   end type
 contains
-
-   type(t_program) function loadInput()
-      integer :: file, ios
-      type(t_program) :: input
-      character(3) :: dummy
-
-      input%size = 0
-
-      file = openFile(19)
-      read (file, *, iostat=ios) dummy, input%ip_register
-      do while (ios == 0)
-         call input%instructions(input%size)%load(file, ios)
-         if (ios == 0) then
-            input%size = input%size + 1
-         end if
-      end do
-
-      call closeFile(file)
-
-      loadInput = input
-   end function
 
    subroutine divisor_sum(registers)
       integer, dimension(0:5), intent(inout) :: registers
@@ -64,52 +36,30 @@ contains
       registers(0) = sum
    end subroutine
 
-   subroutine program_execute(input, registers)
-      class(t_program), intent(in), target :: input
-      integer, dimension(0:5), intent(inout), target :: registers
-      type(t_instruction), pointer :: current
+   integer function execute_program(input, reg0)
+      type(t_program) :: input
+      integer :: reg0
+      integer, dimension(0:5), target :: registers
       integer, dimension(:), pointer :: r
-      integer :: ip, B
-      logical :: hack
 
+      registers = 0
+      registers(0) = reg0
       r => registers
-      ip = registers(input%ip_register)
-      do while (ip < input%size)
-         if (ip == 2) then
-            call divisor_sum(registers)
-            exit
-         end if
-
-         current => input%instructions(ip)
-         call current%execute(r)
-         registers(input%ip_register) = registers(input%ip_register) + 1
-         ip = registers(input%ip_register)
-      end do
-   end subroutine
+      call input%execute(r, 2)
+      call divisor_sum(registers)
+      execute_program = registers(0)
+   end function
 
    integer function Part1()
       type(t_program) :: input
-      integer, dimension(0:5) :: registers
-
-      registers = 0
-
-      input = loadInput()
-      call input%execute(registers)
-
-      Part1 = registers(0)
+      input = loadProgram(19)
+      Part1 = execute_program(input, 0)
    end function
 
    integer function Part2()
       type(t_program) :: input
-      integer, dimension(0:5) :: registers
-
-      registers = 0
-      registers(0) = 1
-
-      input = loadInput()
-      call input%execute(registers)
-
-      Part2 = registers(0)
+      input = loadProgram(19)
+      Part2 = execute_program(input, 1)
    end function
 
    subroutine Day19Solve()
