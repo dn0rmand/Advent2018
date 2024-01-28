@@ -11,6 +11,10 @@ module Day5
       type(t_chain), pointer :: previous => null()
    end type
 
+   type :: t_chain_info
+      type(t_chain), pointer :: first => null()
+   end type
+
 contains
 
    subroutine LoadInput(first)
@@ -54,11 +58,13 @@ contains
       end if
    end function
 
-   subroutine collapse(first)
-      type(t_chain), pointer, intent(inout) :: first
+   subroutine collapse(chain)
+      type(t_chain_info), intent(inout) :: chain
+      type(t_chain), pointer:: first
       type(t_chain), pointer :: one, two
       type(t_chain), pointer :: current
 
+      first => chain%first
       current => first
       do while (associated(current%next))
          if (shouldCollapse(current%value, current%next%value)) then
@@ -70,6 +76,7 @@ contains
                if (associated(first)) then
                   first%previous => null()
                end if
+               chain%first = first
             else
                current => one%previous
                current%next => two%next
@@ -86,35 +93,41 @@ contains
       end do
    end subroutine
 
-   subroutine cleanup(first)
-      type(t_chain), pointer, intent(inout) :: first
-      type(t_chain), pointer :: old => null()
+   subroutine cleanup(chain)
+      type(t_chain_info), intent(inout) :: chain
+      type(t_chain), pointer :: current
+      type(t_chain), pointer :: old
 
-      do while (associated(first))
-         old => first
-         first => first%next
+      current => chain%first
+      chain%first => null()
+
+      do while (associated(current))
+         current%previous => null()
+         old => current
+         current => current%next
+         old%next => null()
          deallocate (old)
       end do
-
-      first => null()
    end subroutine
 
-   subroutine clone(first, destin, letter1, letter2)
-      type(t_chain), pointer, intent(in) :: first
-      character, intent(in) :: letter1, letter2
-      type(t_chain), pointer, intent(out) :: destin
+   type(t_chain_info) function clone(chain, letter1, letter2)
+      type(t_chain_info) :: result, chain
+      character:: letter1, letter2
       type(t_chain), pointer :: ptr
       type(t_chain), pointer :: current => null()
       type(t_chain), pointer :: next => null()
 
-      ptr => first
-      destin => null()
+      ptr => chain%first
+      result%first => null()
       do while (associated(ptr))
          if (ptr%value /= letter1 .and. ptr%value /= letter2) then
             allocate (next)
+            next%previous => null()
+            next%next => null()
             next%value = ptr%value
-            if (.not. associated(destin)) then
-               destin => next
+
+            if (.not. associated(result%first)) then
+               result%first => next
             end if
             if (associated(current)) then
                next%previous => current
@@ -124,15 +137,17 @@ contains
          end if
          ptr => ptr%next
       end do
-   end subroutine
 
-   integer function length(first)
-      type(t_chain), pointer :: first
+      clone = result
+   end function
+
+   integer function length(chain)
+      type(t_chain_info) :: chain
       type(t_chain), pointer :: current
       integer :: size
 
       size = 0; 
-      current => first
+      current => chain%first
       do while (associated(current))
          size = size + 1
          current => current%next
@@ -140,50 +155,49 @@ contains
       length = size
    end function
 
-   subroutine dump(first)
-      type(t_chain), pointer, intent(in) :: first
-      type(t_chain), pointer :: current
-
-      current => first
-      do while (associated(current))
-         write (*, fmt='(A)', advance='no') current%value
-         current => current%next
-      end do
-      print *, ''
-   end subroutine
-
    integer function Part1()
       type(t_chain), pointer :: input => null()
+      type(t_chain_info) :: chain
 
       call LoadInput(input)
-      call collapse(input)
-      Part1 = length(input)
-      call cleanup(input)
+
+      chain%first => input
+
+      call collapse(chain)
+      Part1 = length(chain)
+      call cleanup(chain)
    end function
 
    integer function Part2()
+      type(t_chain_info) :: chain
+      type(t_chain_info), dimension(26) :: cloned
       type(t_chain), pointer :: input => null()
-      type(t_chain), pointer :: cloned => null()
       character :: letter1, letter2
       integer :: i, l, min
 
       call LoadInput(input)
-      call collapse(input)
 
-      min = length(input)
+      chain%first => input
+
+      call collapse(chain)
+
+      min = length(chain)
       do i = 1, 26
          letter1 = achar(i + 64)
          letter2 = achar(i + 64 + 32)
-         call clone(input, cloned, letter1, letter2)
-         call collapse(cloned)
-         l = length(cloned)
+         cloned(i) = clone(chain, letter1, letter2)
+         call collapse(cloned(i))
+         l = length(cloned(i))
          if (l < min) then
             min = l
          end if
-         call cleanup(cloned)
       end do
+      print *, min
+      ! do i = 26, 1, -1
+      !    call cleanup(cloned(i))
+      ! end do
 
-      call cleanup(input)
+      call cleanup(chain)
 
       Part2 = min
    end function Part2
