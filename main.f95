@@ -45,7 +45,7 @@ program Advent2018
          call get_command_argument(ix, arg)
          if (arg == 'x') then
             call cpu_time(start)
-            call Day20Solve()
+            call Day22Solve()
             call cpu_time(finish)
             print '("Executed in ",f6.3," seconds.")', finish - start
             exit
