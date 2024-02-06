@@ -172,13 +172,14 @@ contains
       ! call bubbleSort(this)
    end subroutine
 
-   character(10) function itoa(value)
+   function itoa(value) result(a)
       integer :: value
-      character(10) :: result
+      character(20) :: result
+      character(:), allocatable :: a
 
       write (result, '(I10)') value
 
-      itoa = trim(adjustl(result))
+      a = trim(adjustl(result))
    end function
 
    character(6) function itoHex(value)

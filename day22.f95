@@ -157,7 +157,6 @@ contains
       integer(kind=2), intent(in) :: x, y
       integer(kind=1), intent(in) :: tool
       integer(kind=2) :: time
-      logical :: valid
 
       if (x < 0 .or. x > MAP_SIZE_X .or. y < 0 .or. y > MAP_SIZE_Y) then
          return
@@ -213,8 +212,6 @@ contains
       class(t_engine), intent(inout) :: this
       type(t_map), intent(in), pointer :: map
       type(t_input), intent(in) :: input
-      integer(kind=1) :: i
-      integer(kind=2) :: x, y
 
       this%map => map
       this%targetX = input%targetX
