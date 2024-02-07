@@ -28,7 +28,7 @@ contains
       integer :: file, max_x, max_y
       character(:), allocatable :: line
 
-      input%size = 0; 
+      input%size = 0
       file = openFile(6)
       max_x = 0
       max_y = 0
@@ -54,7 +54,6 @@ contains
 
    integer function getMaxAreaSize(input)
       type(t_input), target :: input
-      integer :: size
       integer :: x, y, i, maxArea, minDist, minCount, dist
       type(t_point), pointer :: pt, minPoint
 
@@ -135,7 +134,7 @@ contains
    integer function Part2()
       type(t_input) :: input
 
-      input = loadInput(); 
+      input = loadInput()
       Part2 = getAreaSize(input, 10000)
    end function
 

@@ -146,7 +146,7 @@ contains
       type(t_chain), pointer :: current
       integer :: size
 
-      size = 0; 
+      size = 0
       current => chain%first
       do while (associated(current))
          size = size + 1

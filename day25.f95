@@ -62,7 +62,7 @@ contains
    integer function distance(p1, p2)
       type(t_point), pointer :: p1, p2
 
-      distance = abs(p1%x - p2%x) + abs(p1%y - p2%y) + abs(p1%z - p2%z) + abs(p1%t - p2%t); 
+      distance = abs(p1%x - p2%x) + abs(p1%y - p2%y) + abs(p1%z - p2%z) + abs(p1%t - p2%t)
    end function
 
    integer function Part1()

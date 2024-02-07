@@ -68,7 +68,7 @@ contains
       type(t_input), target :: input
       type(t_step), pointer :: afterStep => null()
       type(t_step), pointer :: beforeStep => null()
-      type(t_dependency), pointer :: dep; 
+      type(t_dependency), pointer :: dep
       file = openFile(7)
 
       do while (readLine(file, line))

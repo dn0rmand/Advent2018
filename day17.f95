@@ -95,15 +95,15 @@ contains
 
    integer function Part1()
       type(t_input), allocatable :: input
-      input = loadInput(); 
-      call input%dump()
+      input = loadInput()
+      ! call input%dump()
       Part1 = 0
       deallocate (input)
    end function
 
    integer function Part2()
       type(t_input), allocatable :: input
-      input = loadInput(); 
+      input = loadInput()
       Part2 = 0
       deallocate (input)
    end function

@@ -127,7 +127,7 @@ contains
       type(t_entry) :: row, row2
       integer :: i, bestGuard, startIndex, maxMinutes, minutes, guard, index
 
-      bestGuard = 0; 
+      bestGuard = 0
       startIndex = 0
       maxMinutes = 0
       minutes = 0

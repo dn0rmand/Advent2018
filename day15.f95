@@ -90,7 +90,7 @@ contains
       type(t_state) :: state
 
       if (collection%visited(x, y)) then
-         return; 
+         return
       end if
       collection%visited(x, y) = .true.
 
@@ -441,7 +441,7 @@ contains
    integer function Part1()
       type(t_input) :: input
 
-      input = loadInput(); 
+      input = loadInput()
       do while (input%elfs /= 0 .and. input%goblins /= 0)
          call play_round(input)
       end do
@@ -454,7 +454,7 @@ contains
       integer :: min, max, current
       integer :: elfs
 
-      input = loadInput(); 
+      input = loadInput()
       elfs = input%elfs
 
       min = 4

@@ -236,7 +236,7 @@ contains
       maxStates = 0
       do while (this%states%count > 0)
          maxStates = max(maxStates, this%states%count)
-         this%maxTime = this%visited(TORCH, this%targetX, this%targetY); 
+         this%maxTime = this%visited(TORCH, this%targetX, this%targetY)
          do i = 1, this%states%count
             state = this%states%get(i)
             if (state%x /= this%targetX .or. state%y /= this%targetY) then

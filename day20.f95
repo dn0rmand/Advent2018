@@ -109,7 +109,7 @@ contains
       end if
 
       if (section%visited(x, y) .and. input%map(x, y) < doors) then
-         return; 
+         return
       end if
 
       section%visited(x, y) = .true.

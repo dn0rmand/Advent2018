@@ -127,7 +127,7 @@ contains
       type(t_input) :: input
       type(t_max_power) :: max_power
 
-      input = loadInput(); 
+      input = loadInput()
       max_power = input%maxPower(3)
 
       call input%free()
@@ -140,7 +140,7 @@ contains
       integer :: size
       type(t_max_power) :: max_power, mp
 
-      input = loadInput(); 
+      input = loadInput()
       max_power = input%maxPower(2)
       do size = 3, 300
          mp = input%maxPower(size)
