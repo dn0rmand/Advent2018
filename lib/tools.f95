@@ -7,6 +7,7 @@ module tools
    public :: readInteger
    public :: itoa, itoHex
    public :: resizeArray
+   public :: pause
 
    type, abstract :: sortable
       integer :: size = 0
@@ -190,4 +191,17 @@ contains
 
       itoHex = result
    end function
+
+   subroutine pause(delay)
+      integer :: delay
+      integer(kind=8) ::  endTime, i
+
+      endTime = mclock8() + int(delay, 8)*1000
+      i = mclock8()
+
+      do while (i < endTime)
+         i = mclock8()
+      end do
+   end subroutine
+
 end module tools
